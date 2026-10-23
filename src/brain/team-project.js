@@ -333,7 +333,7 @@ Reply ONLY JSON: {"request":"<one concrete project in plain words, buildable fro
       else if (!a.goal && a.autonomy.current?.goal?.type === "freeform" && a.director.ctl) { a.director.cancel("team job"); a.autonomy.lastEnd = 0; }
     }
     if (Date.now() < (a.holdUntil || 0)) return false;                    // told to come and wait: wait
-    if (!a.autonomy.free(true)) return false;                              // a team job is an explicit order: a earlier "stop" does not apply to it
+    if (!a.autonomy.free(true, { team: true })) return false;              // a team job is an explicit order: an earlier "stop" does not apply to it, nor does MC_AUTONOMY=off
     if (this.unsafeNow()) return false;
     if (!a.brain?.available) return false;                                 // building needs the designer (AI): do not take a job I cannot even start
     for (const p of projects) {

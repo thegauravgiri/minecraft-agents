@@ -129,9 +129,10 @@ class Autonomy {
   }
 
   /** Is the agent free to follow its own initiative right now? */
-  free(ignorePause = false) {
+  free(ignorePause = false, { team = false } = {}) {
     const a = this.agent;
-    if (!this.enabled || !a.alive || a.dead || this.thinking) return false;
+    // MC_AUTONOMY=off switches off my OWN initiative; an explicit team job (team: true) is still an order
+    if ((!this.enabled && !team) || !a.alive || a.dead || this.thinking) return false;
     if (a.goal || a.queue.length || a.director.ctl) return false;
     if (a.baseGoal?.type === "follow") {                                // told to follow: a standing order - until the player has gone quiet for a long while
       const since = Math.max(a.baseGoal.startedAt || 0, a.lastHumanCommand || 0);
