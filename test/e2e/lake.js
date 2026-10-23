@@ -1,0 +1,30 @@
+// Integration: chat "go to X" across a lake -> approach() picks swim or boat on its own.
+const mineflayer = require("mineflayer");
+const { Vec3 } = require("vec3");
+const { connect, consoleCmd, botCmd, sleep, waitUntil, settle } = require("./harness");
+(async () => {
+  const mode = process.argv[2] || "swim";
+  const { bot, agent } = await connect("LakeBot");
+  consoleCmd("difficulty peaceful"); consoleCmd("time set day"); consoleCmd("gamemode survival LakeBot");
+  await botCmd(bot, "effect give @s slow_falling 40 1 true");
+  consoleCmd("tp LakeBot -400 110 -400"); await settle(bot);
+  consoleCmd("forceload add -430 -420 -360 -385"); await sleep(500);
+  await botCmd(bot, "fill -425 50 -411 -365 63 -390 stone");
+  await botCmd(bot, "fill -425 64 -411 -365 90 -390 air");
+  await botCmd(bot, "fill -410 56 -406 -381 63 -395 water");
+  await waitUntil(() => bot.blockAt(new Vec3(-400, 62, -400))?.name === "water", 15000, 300);
+  await botCmd(bot, "clear @s"); if (mode === "boat") await botCmd(bot, "give @s oak_boat");
+  if (mode === "craft") await botCmd(bot, "give @s oak_planks 12");
+  consoleCmd("tp LakeBot -416 64 -400"); await sleep(2000);
+  await botCmd(bot, "effect clear @s");
+  const s = mineflayer.createBot({ host: "localhost", port: 25599, username: "Steve", auth: "offline", version: "26.1.2" });
+  await new Promise((r) => s.once("spawn", r)); consoleCmd("op Steve"); await sleep(600);
+  agent.run();
+  s.chat("LakeBot go to -376 64 -400");
+  const t0 = Date.now();
+  const tgt = new Vec3(-376, 64, -400);
+  let rode = false, sawBoat = false, swam = false; bot.on("physicsTick", () => { if (bot.vehicle) rode = true; if (Object.values(bot.entities).some((e) => /boat|raft/.test(e.name || ""))) sawBoat = true; if (bot.entity.isInWater) swam = true; });
+  const ok = await waitUntil(() => bot.entity.position.distanceTo(tgt) < 6, 110000, 500);
+  console.log(ok ? "PASS crossed lake" : "FAIL", mode, "| vehicle:", rode, "boat entity seen:", sawBoat, "touched water:", swam, Math.round((Date.now() - t0) / 1000) + "s", "hp", bot.health.toFixed(1), "pos", bot.entity.position.floored().toString());
+  agent.stop(); bot.quit(); s.quit(); process.exit(ok ? 0 : 1);
+})();

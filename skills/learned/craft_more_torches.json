@@ -1,0 +1,7 @@
+{
+  "name": "craft_more_torches",
+  "description": "Crafts 4 batches of torches near a crafting table",
+  "code": "const table = api.findBlocks('crafting_table', 5, 1)[0];\nif (table) {\n  await api.goto(table.x, table.y, table.z, 2);\n}\nawait api.craft('torch', 4);\nreturn `Torches: ${api.count('torch')}`;",
+  "uses": 1,
+  "savedAt": "2026-10-21T19:27:55.184Z"
+}

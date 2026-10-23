@@ -1,0 +1,20 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# runtime state (memory, chat history, coordinates, project boards - personal to your world)
+data/
+data-log-*.txt
+*.log
+*.bak
+*.tmp
+skills/learned/*.json.*.tmp
+
+# dependencies / OS
+node_modules/
+.DS_Store
+
+# legacy v1 implementation (superseded by src/, kept locally only)
+bot.legacy.js
+skills/*.js

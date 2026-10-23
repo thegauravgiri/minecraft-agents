@@ -1,0 +1,30 @@
+// Thoughts are WHISPERED to the requester only; public replies address the requester by name and ask what is next.
+const mineflayer = require("mineflayer");
+const { connect, consoleCmd, botCmd, sleep, waitUntil, settle } = require("./harness");
+(async () => {
+  const { bot, agent } = await connect("TalkBot");
+  const mk = (n) => new Promise((r) => { const b = mineflayer.createBot({ host: "localhost", port: 25599, username: n, auth: "offline", version: "26.1.2" }); b.once("spawn", () => r(b)); });
+  const asker = await mk("Gems"), watcher = await mk("Watcher");
+  consoleCmd("op Gems"); consoleCmd("difficulty peaceful"); consoleCmd("gamemode survival TalkBot");
+  consoleCmd("tp TalkBot 150 90 -150"); await settle(bot);
+  await botCmd(bot, "clear @s"); await botCmd(bot, "give @s oak_log 6");
+  consoleCmd("tp Gems TalkBot"); consoleCmd("tp Watcher TalkBot"); await sleep(1500);
+  const whispersToAsker = [], publicToAsker = [], watcherSaw = [];
+  asker.on("whisper", (u, m) => { if (u === "TalkBot") whispersToAsker.push(m); });
+  asker.on("messagestr", (m) => { if (/TalkBot whispers to you/i.test(m)) whispersToAsker.push(m); });
+  asker.on("chat", (u, m) => { if (u === "TalkBot") publicToAsker.push(m); });
+  watcher.on("chat", (u, m) => { if (u === "TalkBot") watcherSaw.push(m); });
+  watcher.on("messagestr", (m) => { if (/TalkBot/.test(m)) watcherSaw.push("raw:" + m); });
+  agent.run();
+  asker.chat("TalkBot craft 8 oak planks");
+  await waitUntil(() => publicToAsker.some((m) => /anything else|what would you|what should/i.test(m)), 60000, 300);
+  await sleep(1500);
+  const named = publicToAsker.filter((m) => /^Gems\b/.test(m));
+  const sawThoughts = watcherSaw.some((m) => /~ /.test(m) && !/Gems/.test(m.split("~")[0] || ""));
+  console.log("whispers to asker:", whispersToAsker.length, JSON.stringify(whispersToAsker.slice(0, 3)));
+  console.log("public replies:", JSON.stringify(publicToAsker));
+  console.log("watcher saw private thoughts:", sawThoughts, "| watcher lines:", JSON.stringify(watcherSaw.slice(0, 4)));
+  const pass = whispersToAsker.length > 0 && named.length === publicToAsker.length && publicToAsker.some((m) => /anything else|what would you/i.test(m)) && !sawThoughts;
+  console.log(pass ? "PASS whispers + named replies" : "FAIL");
+  agent.stop(); bot.quit(); asker.quit(); watcher.quit(); process.exit(pass ? 0 : 1);
+})();

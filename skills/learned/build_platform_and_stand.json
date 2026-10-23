@@ -1,0 +1,7 @@
+{
+  "name": "build_platform_and_stand",
+  "description": "Builds a 3x3 platform two blocks above ground nearby and stands on it",
+  "code": "const p = api.pos();\nconst baseY = Math.floor(p.y) + 2;\nconst startX = Math.floor(p.x) + 2;\nconst startZ = Math.floor(p.z) - 1;\nfor (let dx = 0; dx < 3; dx++) {\n  for (let dz = 0; dz < 3; dz++) {\n    await api.place('cobblestone', startX + dx, baseY, startZ + dz);\n  }\n}\nawait api.goto(startX + 1, baseY + 1, startZ + 1, 0.5);",
+  "uses": 1,
+  "savedAt": "2026-10-20T15:31:50.555Z"
+}

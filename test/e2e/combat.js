@@ -1,0 +1,20 @@
+const { connect, consoleCmd, botCmd, sleep, waitUntil } = require("./harness");
+(async () => {
+  const { bot, agent } = await connect();
+  consoleCmd("difficulty normal"); consoleCmd("time set day"); consoleCmd("gamerule spawn_mobs false"); consoleCmd("kill @e[type=!minecraft:player]"); await sleep(800);
+  await botCmd(bot, "gamemode survival"); await botCmd(bot, "clear @s");
+  await botCmd(bot, "give @s iron_sword"); await botCmd(bot, "give @s cooked_beef 10");
+  await botCmd(bot, "effect give @s resistance 5 1 true");
+  await sleep(500);
+  agent.run();
+  const hostiles = () => Object.values(bot.entities).filter((e) => ["zombie", "skeleton", "spider"].includes(e.name)).length;
+  for (let i = 0; i < 3; i++) consoleCmd(`execute at AIBot run summon zombie ~${3 + i} ~ ~${i * 2 - 2} {PersistenceRequired:1b}`);
+  consoleCmd("execute at AIBot run summon skeleton ~-5 ~ ~ {PersistenceRequired:1b}");
+  consoleCmd("execute at AIBot run summon spider ~ ~ ~6 {PersistenceRequired:1b}");
+  await sleep(1500);
+  console.log("hostiles spawned:", hostiles(), "hp", bot.health);
+  const ok = await waitUntil(() => hostiles() === 0, 60000, 500);
+  console.log(ok ? "PASS: all hostiles dead" : `FAIL: ${hostiles()} left`, "hp", bot.health.toFixed(1), "food", bot.food, "deaths?", agent.dead);
+  console.log(agent.stats);
+  agent.stop(); bot.quit(); process.exit(ok ? 0 : 1);
+})().catch((e) => { console.error(e); process.exit(2); });

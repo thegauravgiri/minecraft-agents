@@ -1,0 +1,7 @@
+{
+  "name": "pillar_and_jump_off",
+  "description": "Pillars up 3 blocks, steps down onto ground, and reports item count.",
+  "code": "const p = api.pos();\nawait api.goto(Math.floor(p.x) + 2, p.y, Math.floor(p.z), 1);\nawait api.pillar(3);\nconst p2 = api.pos();\nawait api.goto(p2.x + 2, p2.y - 3, p2.z, 1);\nconst rem = api.count('cobblestone');\nawait api.say(`I have ${rem} cobblestone left.`);",
+  "uses": 1,
+  "savedAt": "2026-10-20T16:55:39.718Z"
+}

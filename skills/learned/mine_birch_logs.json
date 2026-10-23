@@ -1,0 +1,1 @@
+{"name":"mine_birch_logs","description":"Mines birch logs","params":[],"tags":[],"code":"await api.mine(['birch_log'], 2);\nreturn 'Mined birch logs';","version":1,"uses":3,"successes":3,"failures":0,"authors":["Bolt"],"history":[],"created":"2026-10-22T07:51:31.792Z","updated":"2026-10-22T08:10:21.131Z","lastError":null}
