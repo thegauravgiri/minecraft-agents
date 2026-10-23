@@ -216,7 +216,7 @@ async function handleChat(agent, speaker, message, { whisper = false, trusted = 
     }
     return;
   }
-  // "continue your task" / "what about the cooking house?" / "Scout, finish it with AIBot": the unfinished build is picked up again AT ITS PLACE
+  // "continue your task" / "what about the cooking house?" / "Wren, finish it with Vesper": the unfinished build is picked up again AT ITS PLACE
   // (its owner builds, the others named come and help) - not a new project, not a trip somewhere
   if (!trusted && !agent.isAgent(speaker) && continueBuild(agent, speaker, message)) return;
   // A message to several of us (or to everyone) is NOT answered by everyone: one elected leader plans it, the rest pick jobs from the board.

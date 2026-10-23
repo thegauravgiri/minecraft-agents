@@ -10,7 +10,7 @@ const { Brain } = require("./brain/llm");
 const { installDigTime } = require("./runtime/dig-time");
 const { log } = require("./runtime/util");
 
-function createAgentBot({ host = "localhost", port, username = "AIBot", version = "26.1.2", auto = true, chat = true, gamemode = null } = {}) {
+function createAgentBot({ host = "localhost", port, username = "Vesper", version = "26.1.2", auto = true, chat = true, gamemode = null } = {}) {
   const bot = mineflayer.createBot({ host, port, username, auth: "offline", version });
   bot.loadPlugin(pathfinder);
   require("./runtime/world").capture(bot);
@@ -98,10 +98,10 @@ function watchMemory() {
 async function main() {
   watchMemory();
   const port = parseInt(process.argv[2] || process.env.MC_PORT || "0", 10);        // command line wins over .env
-  const username = process.argv[3] || process.env.MC_BOT_NAME || "AIBot";
+  const username = process.argv[3] || process.env.MC_BOT_NAME || "Vesper";
   const host = process.argv[4] || process.env.MC_HOST || "localhost";
   if (!port) { console.log("Usage: node bot.js <PORT> [BOT_NAME] [HOST]   (or set MC_PORT in .env)"); process.exit(1); }
-  if (username !== "AIBot" && !process.env.BOT_DATA_DIR) process.env.BOT_DATA_DIR = path.resolve(__dirname, "..", "data", username);   // each extra agent has its own memory
+  if (!process.env.BOT_DATA_DIR) process.env.BOT_DATA_DIR = path.resolve(__dirname, "..", "data", username);   // every agent has its own memory: data/<name>
   let delay = 3000;
   for (;;) {
     log("boot", `connecting ${username} to ${host}:${port} ...`);

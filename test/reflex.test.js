@@ -6,9 +6,9 @@ const snap = (o = {}) => ({ t: 1, health: 20, food: 20, oxygen: 20, inv: {}, hos
 assert.strictEqual(reflex(snap({ hostiles: [mob("zombie", 5), mob("zombie", 6), mob("skeleton", 8)] }), { mode: "task" }).kind, "outnumbered", "3 hostiles close = outnumbered");
 assert.strictEqual(reflex(snap({ hostiles: [mob("zombie", 5), mob("zombie", 20)] }), { mode: "task" }), null, "one close zombie while working is ignored (task mode engages only at 4 blocks)");
 assert.strictEqual(reflex(snap({ health: 8, hostiles: [mob("zombie", 6)] }), { mode: "task" }).kind, "flee_or_block", "8 hp with a threat: get out");
-const ally = { username: "Bolt", pos: { x: 12, y: 64, z: 0 } };
+const ally = { username: "Gable", pos: { x: 12, y: 64, z: 0 } };
 const r = reflex(snap({ hostiles: [mob("zombie", 12)] }), { mode: "task", allies: [ally] });
-assert(r && r.kind === "defend" && r.ally === "Bolt", "a mob on a teammate is fought");
+assert(r && r.kind === "defend" && r.ally === "Gable", "a mob on a teammate is fought");
 assert.strictEqual(reflex(snap({ health: 8, hostiles: [mob("zombie", 12)] }), { mode: "task", allies: [ally] }), null, "...but not when I am too hurt myself");
 assert.strictEqual(reflex(snap({ gameMode: "creative", hostiles: [mob("zombie", 2), mob("zombie", 3), mob("zombie", 4)] }), {}), null, "creative: nothing to fear");
 assert.strictEqual(reflex(snap({ health: 6, food: 12, inv: { rotten_flesh: 3 } }), {}).item, "rotten_flesh", "low hp, nothing else to eat: rotten flesh");

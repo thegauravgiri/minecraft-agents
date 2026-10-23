@@ -2,7 +2,7 @@
 // more expensive and more likely to act on stale facts. Two levels:
 //   "chat" - the conversation only (what was said; places and knowledge stay)
 //   "all"  - conversation, remembered places/facts, landmarks, journal, own projects/requests (the skill library always stays)
-// Works on a running agent (in memory AND on disk) - triggered from chat ("AIBot reset your memory") or by scripts/reset-context.js via the team inbox.
+// Works on a running agent (in memory AND on disk) - triggered from chat ("Vesper reset your memory") or by scripts/reset-context.js via the team inbox.
 const fs = require("fs");
 const path = require("path");
 const { log } = require("./util");

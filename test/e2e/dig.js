@@ -4,7 +4,7 @@ const { Memory } = require("../../src/core/memory");
 (async () => {
   const { bot, agent, reg } = await connect();
   consoleCmd("difficulty peaceful"); await botCmd(bot, "gamemode survival"); await botCmd(bot, "clear @s"); await botCmd(bot, "give @s diamond_pickaxe");
-  consoleCmd("tp AIBot -30 80 60"); await sleep(1000); while (!bot.entity.onGround || bot.entity.position.y < 70) await sleep(200); await sleep(500);
+  consoleCmd("tp Vesper -30 80 60"); await sleep(1000); while (!bot.entity.onGround || bot.entity.position.y < 70) await sleep(200); await sleep(500);
   const y0 = bot.entity.position.y;
   const ctl = new AbortController();
   const ctx = { bot, reg, mem: new Memory(), signal: ctl.signal, agent };

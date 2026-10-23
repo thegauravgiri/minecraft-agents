@@ -20,11 +20,11 @@ function audience(message) {
   const l = String(message).toLowerCase();
   const at = (n) => l.search(new RegExp(`\\b${n.toLowerCase()}\\b`));
   const named = AGENTS().filter((n) => at(n) >= 0).sort((a, b) => at(a) - at(b));       // in the order the player said them: the first one named leads
-  return { named, group: named.length >= 2 || GROUP.test(l) };                 // several names, or words addressing everybody (also "AIBot leads, you all build ...")
+  return { named, group: named.length >= 2 || GROUP.test(l) };                 // several names, or words addressing everybody (also "Vesper leads, you all build ...")
 }
 
 /**
- * Everybody computes the same answer from the same shared facts. The leader is whoever the player named FIRST ("Scout, finish it with AIBot" -> Scout);
+ * Everybody computes the same answer from the same shared facts. The leader is whoever the player named FIRST ("Wren, finish it with Vesper" -> Wren);
  * nobody named ("everyone build a village") -> picked from the online team by the message itself, so leadership rotates instead of always being one bot.
  */
 function electCoordinator(agent, candidates, message = "") {
@@ -121,7 +121,7 @@ class TeamProjects {
     const objects = (String(message).match(/\b(statue|house|tower|castle|ship|monument|mansion|temple|bridge|wall|pyramid|church|cabin|hut|arena|fountain|sculpture|replica|model|farm|field|well|pen|garden|barn|shed|stable|mine|base)\b/gi) || []).length;
     const oneThing = objects === 1 && /\b(statue|house|tower|castle|ship|monument|mansion|temple|bridge|wall|pyramid|church|cabin|hut|arena|fountain|sculpture|replica|model)\b/i.test(message) && !/\b(village|town|city|houses|buildings|statues|towers|several|multiple)\b/i.test(message);
     const plan = oneThing
-      ? { kind: "project", name: "big build", summary: "One build, one place - I'll design it and we all build it together", tasks: [{ id: "main", title: String(message).replace(/(-?\d+)[\s,]+(-?\d+)[\s,]+(-?\d+)/, "").replace(/\b(guys|everyone|team|aibot|scout|please)\b/gi, "").trim().slice(0, 40) || "the build", request: String(message).replace(/(-?\d+)[\s,]+(-?\d+)[\s,]+(-?\d+)/g, "").replace(/\b(at|in|on)\s*$/i, "").slice(0, 400), roleHint: "builder", size: { w: 15, d: 15 }, zone: "center" }] }
+      ? { kind: "project", name: "big build", summary: "One build, one place - I'll design it and we all build it together", tasks: [{ id: "main", title: String(message).replace(/(-?\d+)[\s,]+(-?\d+)[\s,]+(-?\d+)/, "").replace(new RegExp(`\\b(guys|everyone|team|please${AGENTS().map((n) => "|" + n).join("")})\\b`, "gi"), "").trim().slice(0, 40) || "the build", request: String(message).replace(/(-?\d+)[\s,]+(-?\d+)[\s,]+(-?\d+)/g, "").replace(/\b(at|in|on)\s*$/i, "").slice(0, 400), roleHint: "builder", size: { w: 15, d: 15 }, zone: "center" }] }
       : await this.makePlan(message, speaker, roster, center);
     if (plan?.kind === "order") { board.update(id, { state: "cancelled" }); this.broadcastOrder(speaker, message, plan); return; }
     if (!plan || plan.kind === "chat" || !plan.tasks?.length) {

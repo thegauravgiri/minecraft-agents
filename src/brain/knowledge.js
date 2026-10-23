@@ -1,6 +1,6 @@
 // Structured world knowledge: every entry is a measured/declared fact with provenance, so prompts only contain things that
 // are true and the AI is never tempted to invent coordinates. Each bot keeps its own file; builds and landmarks are also
-// published to a file all agents read, so a teammate knows where AIBot's mansion is.
+// published to a file all agents read, so a teammate knows where Vesper's mansion is.
 const path = require("path");
 const { writeJsonAtomic, readJsonSafe, log } = require("../runtime/util");
 

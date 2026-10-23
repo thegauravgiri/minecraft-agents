@@ -418,7 +418,7 @@ class Agent {
     this.director?.cancel("team order");                                         // my own AI errand stops: an order from the team comes first
     this.abortCurrent("team_order"); this.goal = null; this.ledger = []; this.queue = [];
     if (goal.type === "stop") { this.setGoal({ type: "idle" }); this.autonomy.pause(90000); return; }
-    if ((goal.type === "follow" || goal.type === "come") && String(goal.player).toLowerCase() === this.bot.username.toLowerCase()) return;   // "follow Scout" is not an order for Scout
+    if ((goal.type === "follow" || goal.type === "come") && String(goal.player).toLowerCase() === this.bot.username.toLowerCase()) return;   // "follow Wren" is not an order for Wren
     this.setGoal({ ...goal, internal: true, order: true });
   }
 
@@ -695,7 +695,7 @@ class Agent {
     const timer = setTimeout(() => ctl.abort(), limit);
     try {
       // A skill that ignores its abort signal (a dig the server never answers, a promise that never settles) must not hold the whole
-      // agent hostage: 4 s after an abort the cycle moves on whether or not the skill noticed. (This is what froze AIBot and Scout.)
+      // agent hostage: 4 s after an abort the cycle moves on whether or not the skill noticed. (This is what froze Vesper and Wren.)
       let giveUp;
       const orphaned = new Promise((_, rej) => { giveUp = () => setTimeout(() => rej(Object.assign(new Error("skill ignored abort"), { name: "AbortError", orphaned: true })), 4000); ctl.signal.addEventListener("abort", giveUp, { once: true }); });
       const r = await Promise.race([fn(ctx, action.args || {}), orphaned]);

@@ -18,13 +18,13 @@ repair your village, ride ghasts — and teach each other the skills they learn.
 <!-- Demo: drop a 20-30 s GIF here, e.g. docs/demo.gif — two agents building a flag, or one shouting "zombie on me!" and the other running over to help. -->
 
 ```text
-<Steve>  Scout, build a cooking house here
-<Scout>   Steve, building a cooking house right here!
-<AIBot>   zombie on me at -490 30 - need help!
-<Scout>   AIBot, hold on, coming!
-<Scout>   Steve, back on the cooking house at -491 69 32.
+<Steve>  Wren, build a cooking house here
+<Wren>   Steve, building a cooking house right here!
+<Vesper>   zombie on me at -490 30 - need help!
+<Wren>   Vesper, hold on, coming!
+<Wren>   Steve, back on the cooking house at -491 69 32.
 <Steve>  everyone, renovate the village
-<AIBot>   Village check: 6 buildings, 4 need repairs, 38 ground holes, paths to 9 doors.
+<Vesper>   Village check: 6 buildings, 4 need repairs, 38 ground holes, paths to 9 doors.
           Jobs: repair building 1, repair building 2, fill the ground gaps, lay the village paths.
 ```
 
@@ -35,7 +35,7 @@ Most Minecraft AI bots are **one bot following one player's commands**. Minecraf
 | | |
 |---|---|
 | 🧑‍🤝‍🧑 **A real team** | Ask several agents for something big and *one* of them takes the lead, plans it, and posts jobs on a shared board. The others claim jobs, report back, and pick up whatever a teammate dropped. |
-| 🗣️ **Natural chat** | Plain English: "build a bridge across the river", "put your stuff in the chest", "come here and wait", "finish it with AIBot". Coordinates, "here" and "where I'm looking" are all understood. |
+| 🗣️ **Natural chat** | Plain English: "build a bridge across the river", "put your stuff in the chest", "come here and wait", "finish it with Vesper". Coordinates, "here" and "where I'm looking" are all understood. |
 | 🛡️ **Survival instinct** | Agents eat, flee creepers, call for help when outnumbered, run to a teammate's rescue, sleep in a bed or dig in until daylight. |
 | 🏗️ **Builders, not printers** | AI-designed structures are compiled to block plans and built progressively — survival gathers the materials batch by batch, creative flies and places. Repair, clean-up and village renovation are deterministic: holes get filled, junk gets removed, doorways get doors. |
 | 📚 **Skills they share** | When the AI writes a script that works, it is saved to a shared library with a track record. The next agent reuses it; a failing skill gets repaired and the fix is saved for everyone. |
@@ -56,14 +56,32 @@ cp .env.example .env          # paste your GEMINI_API_KEY (optional but recommen
 2. Start one agent, or a whole team:
 
 ```bash
-node bot.js <PORT> AIBot                  # one agent
-./start-team.sh <PORT> AIBot Scout Atlas  # a team (each one self-restarts if it crashes)
+node bot.js <PORT> Vesper                  # one agent
+./start-team.sh <PORT> Vesper Wren Cobalt  # a team (each one self-restarts if it crashes)
 ./stop-team.sh                            # everybody leaves
 ```
 
-3. Say hi in chat: `AIBot come here`.
+3. Say hi in chat: `Vesper come here`.
 
 > A LAN world allows 8 players, so up to 7 agents plus you. Any offline-mode server works too (`MC_HOST`).
+
+## 👥 Meet the crew
+
+Start any of them by name, or any name you like: unknown names get a role too.
+
+| Agent | Role | Loves |
+|---|---|---|
+| **Vesper** | leader | planning big projects and splitting the work |
+| **Wren** | scout | exploring, finding villages, ore and water |
+| **Cobalt** | miner | caves, iron, diamonds |
+| **Gable** | builder | houses, towers, repairs |
+| **Bramble** | lumberjack | wood, planks, clearing land |
+| **Rook** | hunter | food, mob control, guarding the team |
+| **Tinder** | smith | furnaces, tools and armour |
+
+```bash
+./start-team.sh <PORT> Vesper Wren Cobalt Gable
+```
 
 ## 🎮 What they can do
 
@@ -79,11 +97,11 @@ node bot.js <PORT> AIBot                  # one agent
 
 | You say | They do |
 |---|---|
-| `AIBot come here` | walk to you and wait there |
-| `Scout build a small oak house where I'm looking` | design it, gather/craft materials, build it on that spot |
+| `Vesper come here` | walk to you and wait there |
+| `Wren build a small oak house where I'm looking` | design it, gather/craft materials, build it on that spot |
 | `everyone build a village here` | a leader plans the jobs, the team splits them |
-| `Scout, finish it with AIBot` | Scout continues its unfinished build, AIBot helps |
-| `AIBot repair this house` / `fill the holes in the ground` | deterministic repair of what's actually broken |
+| `Wren, finish it with Vesper` | Wren continues its unfinished build, Vesper helps |
+| `Vesper repair this house` / `fill the holes in the ground` | deterministic repair of what's actually broken |
 | `put your stuff in the chest` | store items in the nearest chest |
 | `drive the ghast to 100 120 -40` | fly the happy ghast there |
 | `cancel all tasks` / `forget everything` | clear work / reset memory |

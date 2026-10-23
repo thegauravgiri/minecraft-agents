@@ -20,7 +20,7 @@ const ROLES = {
   hunter: { title: "hunter and cook", focus: "hunt animals, cook food, keep a food stock for yourself and the team" },
   smith: { title: "smith and crafter", focus: "craft tools, armor, weapons and furnaces; smelt ore; equip yourself first, then supply teammates" }
 };
-const ROSTER = { aibot: "leader", scout: "scout", atlas: "miner", bolt: "builder", cedar: "lumberjack", dune: "hunter", ember: "smith" };
+const ROSTER = { vesper: "leader", wren: "scout", cobalt: "miner", gable: "builder", bramble: "lumberjack", rook: "hunter", tinder: "smith" };
 const ROLE_ORDER = ["builder", "miner", "lumberjack", "hunter", "smith", "scout"];
 function roleFor(name) {
   const k = String(name).toLowerCase();

@@ -10,7 +10,7 @@ const scenario = process.argv[2] || "pillar";
   await botCmd(bot, "give @s iron_sword"); await botCmd(bot, "give @s cobblestone 16");
   consoleCmd("gamemode survival Steve"); consoleCmd("clear Steve");
   await sleep(500);
-  consoleCmd("tp AIBot -30 80 60"); await sleep(1200);
+  consoleCmd("tp Vesper -30 80 60"); await sleep(1200);
   const b = bot.entity.position.floored();
   if (scenario === "pillar") {
     // 7-high stone column, Steve on top
@@ -24,7 +24,7 @@ const scenario = process.argv[2] || "pillar";
   }
   await sleep(1500);
   agent.run();
-  s.chat("AIBot kill Steve");
+  s.chat("Vesper kill Steve");
   const dead = () => !s.entity || s.health <= 0 || agent.kills.has("steve");
   const ok = await waitUntil(() => agent.kills.has("steve"), 90000, 500);
   console.log(ok ? `PASS ${scenario}: target killed` : `FAIL ${scenario}: not killed`, "bot hp", bot.health.toFixed(1), agent.stats);

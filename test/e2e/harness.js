@@ -12,7 +12,7 @@ const PORT = Number(process.env.MC_TEST_PORT || 25599);
 function consoleCmd(cmd) { fs.writeFileSync(FIFO, cmd + "\n", { flag: "a" }); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function connect(name = "AIBot") {
+async function connect(name = "Vesper") {
   const ctx = createAgentBot({ port: PORT, username: name, auto: false });
   await ctx.ready;
   consoleCmd(`op ${name}`);

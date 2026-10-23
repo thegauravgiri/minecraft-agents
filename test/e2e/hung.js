@@ -1,4 +1,4 @@
-// A skill that never returns and ignores abort (what froze AIBot and Scout) must not freeze the agent.
+// A skill that never returns and ignores abort (what froze Vesper and Wren) must not freeze the agent.
 const { connect } = require("./harness");
 const skills = require("../../src/skills");
 (async () => {

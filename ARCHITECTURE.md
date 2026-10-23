@@ -196,8 +196,8 @@ Multi-agent: `MC_AGENT_NAMES`, `tell` goal (`@Name command`), `start-team.sh`.
 
 ### v2.13 - jobs survive help calls; any agent can lead
 - `respondToAlert`: the current goal and queue (player orders, not idle autonomy errands) are put back after the `goto` + `kill` help goals, with the same `sid`, so a build resumes at its place.
-- `chat.continueBuild`: "continue your task" / "what about the cooking house" / "Scout, finish it with AIBot" resumes the owner's unfinished build (`shared.buildOf`) at its fixed origin. Other named agents get `assist` on it. It runs before the group/project route.
-- `electCoordinator(agent, named, message)`: the agent named FIRST leads. If nobody is named, a hash of the message picks one from the online team (no fixed AIBot preference). If the elected leader makes no plan within about 30-40 s, a waiting agent takes the lead.
+- `chat.continueBuild`: "continue your task" / "what about the cooking house" / "Wren, finish it with Vesper" resumes the owner's unfinished build (`shared.buildOf`) at its fixed origin. Other named agents get `assist` on it. It runs before the group/project route.
+- `electCoordinator(agent, named, message)`: the agent named FIRST leads. If nobody is named, a hash of the message picks one from the online team (no fixed Vesper preference). If the elected leader makes no plan within about 30-40 s, a waiting agent takes the lead.
 - `broadcastOrder` / `runOrder`: an order to follow/come to an agent is not sent to that agent itself.
 - Tests: `test/e2e/helpresume.js`. They clean up their forceload areas: piled-up forceloads crashed the scratch server.
 
