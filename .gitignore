@@ -18,3 +18,6 @@ node_modules/
 # legacy v1 implementation (superseded by src/, kept locally only)
 bot.legacy.js
 skills/*.js
+
+# episode recordings, logs and edits (personal)
+episodes/

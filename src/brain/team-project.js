@@ -140,6 +140,7 @@ class TeamProjects {
     const list = tasks.slice(0, 8).map((t) => t.title).join(", ");
     this.say(`${String(plan.summary || plan.name).replace(/[.\s]+$/, "")}. Jobs: ${list}${tasks.length > 8 ? ", ..." : ""}. Take what fits your role - I'll go for ${this.bestFor(tasks)?.title || "whatever is left"}.`);
     log("project", `${this.me} planned "${plan.name}" with ${tasks.length} jobs at ${center.x},${center.z}`);
+    require("./episode").mark(this.me, "plan", `${plan.name}: ${tasks.map((t) => t.title).join(", ").slice(0, 150)}`);
   }
 
   /** "Everyone come to 6 64 140": validate the goal (coordinates must come from the human's words), tell the whole team, do it myself too. */
@@ -424,6 +425,7 @@ Reply ONLY JSON: {"request":"<one concrete project in plain words, buildable fro
     if (open.length) return;
     board.update(p.id, { state: ts.every((t) => t.state === "done") ? "done" : "partial" });
     const done = ts.filter((t) => t.state === "done").length;
+    require("./episode").mark(this.me, "milestone", `${p.name}: ${done}/${ts.length} jobs done`);
     this.say(done === ts.length ? pick([`That's the whole ${p.name} - all ${done} jobs done. Nice work everyone!`, `${p.name} is finished, ${done}/${ts.length} jobs. Good teamwork!`]) : `${p.name}: ${done}/${ts.length} jobs done, the rest kept failing - need a hand with those.`);
   }
 }

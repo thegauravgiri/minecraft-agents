@@ -25,7 +25,7 @@ function tooChatty(speaker) {
   return list.length > 8;
 }
 
-const recordChat = (agent, speaker, text) => agent.ctxStore.addChat(speaker, text);
+const recordChat = (agent, speaker, text) => { agent.ctxStore.addChat(speaker, text); require("./episode").chatLine(speaker, text); };
 
 // Pin "here" / "in front of me" / coordinates to a concrete spot NOW, from where the requester actually is and faces.
 // A coordinate the AI produced must come from somewhere real: the player's own words, a known landmark, a player/bot position.
@@ -170,6 +170,7 @@ function whereIs(agent, text) {
 
 async function handleChat(agent, speaker, message, { whisper = false, trusted = false } = {}) {
   recordChat(agent, speaker, message);
+  if (!trusted && require("./episode").onChat(agent, speaker, message)) return;         // "day 4: build the village" / "end of day"
   // Agents never act on each other's CHAT (every bot hears every line; an LLM reads status chatter as orders and they thank each
   // other forever). They talk through runtime/team.js; `trusted` marks a message that arrived that way.
   if (AGENTS.includes(String(speaker).toLowerCase()) && !trusted) {
@@ -258,6 +259,8 @@ async function handleChat(agent, speaker, message, { whisper = false, trusted = 
     });
     if (res) {
       log("chat", `${speaker}: ${message} => llm ${JSON.stringify(res)}`);
+      const decided = [res.goal, ...(res.goals || [])].filter(Boolean);
+      if (decided.length) require("./episode").mark(agent.bot.username, "decision", `"${message.slice(0, 60)}" -> ${decided.map((g) => g.type + (g.request ? ` "${g.request.slice(0, 40)}"` : g.player ? " " + g.player : "")).join(" > ")}`);
       const goals = res.goals?.length ? res.goals : res.goal ? [res.goal] : [];
       if (agent.isAgent(speaker)) goals.splice(0, goals.length, ...goals.filter((g) => g.type !== "tell"));    // an order from a teammate is done by ME, not passed on again (that was the "can you bring me logs" ping-pong)
       goals.splice(0, goals.length, ...groundGoals(agent, speaker, message, goals));
