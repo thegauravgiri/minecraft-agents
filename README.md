@@ -45,6 +45,7 @@ Most Minecraft AI bots are **one bot following one player's commands**. Minecraf
 | 🛡️ **Survival instinct** | Agents eat, flee creepers, call for help when outnumbered, run to a teammate's rescue, sleep in a bed or dig in until daylight. |
 | 🏗️ **Builders, not printers** | AI-designed structures are compiled to block plans and built progressively — survival gathers the materials batch by batch, creative flies and places. Repair, clean-up and village renovation are deterministic: holes get filled, junk gets removed, doorways get doors. |
 | 📚 **Skills they share** | When the AI writes a script that works, it is saved to a shared library with a track record. The next agent reuses it; a failing skill gets repaired and the fix is saved for everyone. |
+| 🎭 **Character mode** | Name an agent `Gandalf`, `Sherlock` or `Dracula` and it talks like that character, with no extra setup. Turn it off with `CHARACTER_MODE=off`. |
 | 🔌 **Any AI provider** | Gemini, Claude, OpenAI, Groq, OpenRouter, DeepSeek, Grok, Mistral, Together, or a local model through Ollama or LM Studio. Paste one API key and go. |
 | 🧠 **Works without AI, too** | A typed planner (tech tree, crafting, smelting, digging, combat) does the heavy lifting. The LLM is used for understanding, design and novel tasks — so a quota hiccup slows them down instead of breaking them. |
 

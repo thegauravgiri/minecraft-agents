@@ -215,3 +215,6 @@ Multi-agent: `MC_AGENT_NAMES`, `tell` goal (`@Name command`), `start-team.sh`.
 - Config: `AI_PROVIDER` (or auto-detect from the first `*_API_KEY` found), `AI_MODEL`, `AI_STRONG_MODEL` (`none` = fast only), `AI_BASE_URL`, `AI_API_KEY`. `GEMINI_MODEL` / `GEMINI_STRONG_MODEL` still work.
 - `Brain` keeps the shared retry, per-model quota breaker and strong-to-fast fallback for every provider. `parseJson` pulls the first JSON object out of prose or code fences.
 - Anthropic: no `temperature` (rejected on current models). `effort` comes from `level`. Refusals throw. Server-side refusal fallbacks (`fallbacks: "default"`) are used on models that support them.
+
+### v2.17 - character mode
+- `src/brain/persona.js`: `personaLine(name)` is added to the chat and banter prompts. An agent named after a famous character speaks in that character's style (short, funny, family-friendly). Other names stay plain and friendly. `CHARACTER_MODE=off` disables it.

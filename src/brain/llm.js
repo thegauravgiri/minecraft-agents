@@ -87,7 +87,7 @@ class Brain {
 
   /** Chat -> {goal|null, reply}. Goal is validated; unknown items/types are rejected. */
   async interpret({ speaker, message, history, status, reg, memory, team = [], fromAgent = false, space = "" }) {
-    const prompt = `You are ${status.botName}, a Minecraft co-op companion bot talking to "${speaker}".
+    const prompt = `You are ${status.botName}, a Minecraft co-op companion bot talking to "${speaker}". ${require("./persona").personaLine(status.botName)}
 Player said: "${message}"
 Conversation so far (oldest first; includes my own replies):\n${history.slice(-20).map((h) => `${h.speaker}: ${h.text}`).join("\n") || "(none)"}
 Places mentioned earlier (use these for "there", "the location I gave", "base"...): ${memory?.places || "none"}

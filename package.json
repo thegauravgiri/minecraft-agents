@@ -34,7 +34,7 @@
   },
   "scripts": {
     "start": "node bot.js",
-    "test": "node test/acquire.test.js && node test/blueprint.test.js && node test/structure.test.js && node test/project.js && node test/learned.test.js && node test/reflex.test.js",
+    "test": "node test/acquire.test.js && node test/blueprint.test.js && node test/structure.test.js && node test/project.js && node test/learned.test.js && node test/reflex.test.js && node test/persona.test.js",
     "e2e": "node test/e2e/chat.js",
     "test:quick": "bash test/run-quick.sh",
     "team": "./start-team.sh"

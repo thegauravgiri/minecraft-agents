@@ -28,7 +28,7 @@ class Banter {
     const a = this.agent;
     const { describeActivity } = require("./status");
     const mates = team.readTeam(this.me).map((t) => `${t.name} (${t.role}, ${t.activity || "idle"}, hp ${t.hp})`).join("; ");
-    const prompt = `You are ${this.me}, ${a.role} in a small Minecraft survival team, typing in the game chat. Right now you are: ${describeActivity(a)}.
+    const prompt = `You are ${this.me}, ${a.role} in a small Minecraft survival team, typing in the game chat. ${require("./persona").personaLine(this.me)} Right now you are: ${describeActivity(a)}.
 Teammates: ${mates}.
 Recent chat:\n${this.recentChat()}
 Why you speak now: ${reason}${extra ? "\n" + extra : ""}
