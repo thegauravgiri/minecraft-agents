@@ -93,7 +93,6 @@ class Agent {
     if (now - this.lastSay.any < 700) return setTimeout(() => this.rawSay(text), 700);
     this.lastSay = { text, t: now, any: now };
     this.ctxStore.addChat(this.bot.username, text, { bot: true });
-    require("../brain/episode").chatLine(this.bot.username, text);
     this.rawSay(text);
   }
 
@@ -108,8 +107,6 @@ class Agent {
     if (clean === this.lastNarrate.text && now - this.lastNarrate.t < 4000) return;
     this.lastNarrate = { text: clean, t: now };
     log("think", clean);
-    // the agent's reasoning, for "AI brain" cards in episode videos (not every step: only real thoughts, at most one per 8 s)
-    if (clean.length > 25 && !/^(go to|walk to|craft \d|mine \d|collect|approach)/i.test(clean) && now - (this.lastThoughtMark || 0) > 8000) { this.lastThoughtMark = now; require("../brain/episode").mark(this.bot.username, "thought", clean); }
     const to = this.master;
     if (!to || !this.bot.players[to] || to === this.bot.username || this.isAgent(to)) return;      // thoughts are whispered to the human who asked, never to a teammate bot
     if (now - (this.lastWhisper || 0) < 2200) return;      // never let thoughts turn into spam
@@ -213,7 +210,6 @@ class Agent {
       this.kills.set(`${e.name}#${e.id}`.toLowerCase(), Date.now());
     });
     bot.on("death", () => {
-      require("../brain/episode").mark(bot.username, "death", `died${this.lastHurt && Date.now() - this.lastHurt.t < 6000 ? " to " + this.lastHurt.by : ""}${this.goal ? " while doing: " + (this.goal.request || this.goal.type) : ""}`);
       this.deathInfo = { pos: this.lastDeathPos || bot.entity.position.clone(), dimension: this.lastDim || "overworld", inv: this.lastInv || {}, t: Date.now() }; this.dead = true; this.deathAt = { pos: bot.entity.position.clone(), t: Date.now(), dimension: bot.game.dimension }; this.abortCurrent("death"); log("agent", "died at", pos3(bot.entity.position)); });
     bot.on("spawn", () => { if (this.dead) { this.dead = false; log("agent", "respawned"); this.planRecovery(); } });
     let tick = 0, last = 0;
@@ -438,7 +434,6 @@ class Agent {
     for (const m of mates) team.send(this.bot.username, m.name, { type: "alert", text: `${mobs.join(", ") || "mobs"} attacking`, data: { pos: { x: Math.round(me.x), y: Math.round(me.y), z: Math.round(me.z) }, mobs, hp: Math.round(snap.health) } });
     if (mates.length) this.say(`${mobs.join(" and ") || "mobs"} on me at ${Math.round(me.x)} ${Math.round(me.z)}${snap.health <= 10 ? ", low on health" : ""} - need help!`, { noName: true, force: true });
     log("team", `called for help (${mobs.join(",")}) - ${mates.length} teammate(s) alerted`);
-    require("../brain/episode").mark(this.bot.username, "help", `${mobs.join(" and ") || "mobs"} attacking${snap.health <= 10 ? ", low on health" : ""} - called for help`);
   }
 
   /** A teammate shouted: go and fight beside them unless I am in no shape to (low health, asleep, far away) or already helping. */
@@ -450,7 +445,6 @@ class Agent {
     if (!p || Math.hypot(p.x - me.x, p.z - me.z) > 90) return;
     this.lastAssist = now;
     log("team", `${m.from} needs help against ${(m.data.mobs || []).join(",")} at ${p.x},${p.z} - going`);
-    require("../brain/episode").mark(this.bot.username, "rescue", `running to help ${m.from} (${(m.data.mobs || []).join(", ") || "mobs"})`);
     this.say(`${m.from}, hold on, coming!`, { noName: true, force: true });
     // what I was doing (a build the player ordered...) is NOT forgotten: it goes back on the list right after the fight
     const resume = [this.goal, ...this.queue].filter((g) => g && !String(g.autoKey || "").startsWith("ally:") && !["hideout", "recover", "kill"].includes(g.type) && !(g.auto && !g.order)).map((g) => ({ ...g, fromQueue: false }));
@@ -593,7 +587,6 @@ class Agent {
         if (internal || this.queue.length) this.think(this.doneMessage(finished).replace(/^./, (c) => c.toUpperCase()));
         else this.say(this.doneMessage(finished) + (this.isAgent(this.master) ? "" : " Is there anything else you need?"), { force: true, report: true });
         log("agent", "goal done:", finished.type);
-        if (!finished.sub && !(finished.auto && !finished.project)) require("../brain/episode").mark(this.bot.username, "done", this.doneMessage(finished));
         this.autonomy.onOutcome(finished, "done", true);
         if (finished.type === "come") { this.holdUntil = Date.now() + (finished.order ? 120000 : 240000); this.autonomy.pause(finished.order ? 120000 : 240000); this.think("standing by with you"); }   // "come here" means come and WAIT, not wander off again after a few seconds
         this.lastGoalOutcome = { id: finished.id, text: "done" };

@@ -141,22 +141,6 @@ flowchart LR
 
 Details: [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## 🎬 Film a "Day N" series
-
-Made for creators. Say this in chat:
-
-```text
-day 4: build the village      ->  "DAY 4" title on everyone's screen, a progress boss bar,
-                                  the goal becomes the team's plan, OBS starts recording
-end of day                    ->  the leader recaps the day in chat, recording stops
-```
-
-Each day is written to `episodes/day-04/`:
-- `highlights.md`: every rescue, death, plan, finished job and AI decision, timed to the recording;
-- `captions.srt`: the day's chat as ready-to-use subtitles.
-
-To have OBS record automatically, set `OBS_WS_PASSWORD` (OBS → Tools → WebSocket Server Settings) in `.env`.
-
 ## 🔌 AI providers
 
 Paste one API key into `.env` and the provider is detected automatically, or choose one with `AI_PROVIDER`. Every provider has a fast model (chat, quick decisions) and a strong model (designs, scripts). Override them with `AI_MODEL` / `AI_STRONG_MODEL`.
