@@ -207,3 +207,11 @@ Multi-agent: `MC_AGENT_NAMES`, `tell` goal (`@Name command`), `start-team.sh`.
 - Director: `follow`/`come` steps are refused unless the task text asks for it ("follow", "come with me"...). Its own errands (`quiet`) are capped at 25 steps instead of 80.
 - `runOrder` cancels a running director errand.
 - Test: `test/e2e/followends.js`.
+
+### v2.15 - any AI provider
+- `src/brain/providers.js`: `resolveConfig(env)` + `createProvider(cfg)`, so every provider exposes `generate({model, prompt, timeoutMs, level}) -> text`.
+  - Gemini and Anthropic use their official SDKs.
+  - Everything OpenAI-compatible (OpenAI, OpenRouter, Groq, DeepSeek, xAI, Mistral, Together, Ollama, LM Studio, custom) uses plain fetch to `/chat/completions`. It falls back to plain JSON when a server rejects `response_format`.
+- Config: `AI_PROVIDER` (or auto-detect from the first `*_API_KEY` found), `AI_MODEL`, `AI_STRONG_MODEL` (`none` = fast only), `AI_BASE_URL`, `AI_API_KEY`. `GEMINI_MODEL` / `GEMINI_STRONG_MODEL` still work.
+- `Brain` keeps the shared retry, per-model quota breaker and strong-to-fast fallback for every provider. `parseJson` pulls the first JSON object out of prose or code fences.
+- Anthropic: no `temperature` (rejected on current models). `effort` comes from `level`. Refusals throw. Server-side refusal fallbacks (`fallbacks: "default"`) are used on models that support them.

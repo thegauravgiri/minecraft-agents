@@ -39,17 +39,18 @@ Most Minecraft AI bots are **one bot following one player's commands**. Minecraf
 | 🛡️ **Survival instinct** | Agents eat, flee creepers, call for help when outnumbered, run to a teammate's rescue, sleep in a bed or dig in until daylight. |
 | 🏗️ **Builders, not printers** | AI-designed structures are compiled to block plans and built progressively — survival gathers the materials batch by batch, creative flies and places. Repair, clean-up and village renovation are deterministic: holes get filled, junk gets removed, doorways get doors. |
 | 📚 **Skills they share** | When the AI writes a script that works, it is saved to a shared library with a track record. The next agent reuses it; a failing skill gets repaired and the fix is saved for everyone. |
+| 🔌 **Any AI provider** | Gemini, Claude, OpenAI, Groq, OpenRouter, DeepSeek, Grok, Mistral, Together, or a local model through Ollama or LM Studio. Paste one API key and go. |
 | 🧠 **Works without AI, too** | A typed planner (tech tree, crafting, smelting, digging, combat) does the heavy lifting. The LLM is used for understanding, design and novel tasks — so a quota hiccup slows them down instead of breaking them. |
 
 ## 🚀 Quick start
 
-**You need:** Node.js 20+, Minecraft Java Edition (tested on **26.1.2**), and optionally a free [Gemini API key](https://aistudio.google.com/apikey).
+**You need:** Node.js 20+, Minecraft Java Edition (tested on **26.1.2**), and optionally an API key from any [supported AI provider](#-ai-providers): Gemini, Claude, OpenAI, Groq, OpenRouter, DeepSeek, Grok, Mistral or Together. You can also use a local model through Ollama or LM Studio.
 
 ```bash
 git clone https://github.com/thegauravgiri/minecraft-agents.git
 cd minecraft-agents
 npm install
-cp .env.example .env          # paste your GEMINI_API_KEY (optional but recommended)
+cp .env.example .env          # paste ONE provider's API key (optional but recommended)
 ```
 
 1. Open a singleplayer world → **Esc → Open to LAN** → *Allow cheats: ON* → note the port.
@@ -114,7 +115,7 @@ From the terminal: `./reset.sh [tasks|chat|all|everything] [names…]`.
 flowchart LR
   Chat[Chat / whispers] --> Router[chat router]
   Router -->|simple| Goal[typed goal]
-  Router -->|fuzzy| LLM[Gemini]
+  Router -->|fuzzy| LLM[LLM: Gemini / Claude / OpenAI / local ...]
   LLM --> Goal
   Router -->|group request| Board[(project board)]
   Board --> Goal
@@ -130,13 +131,41 @@ flowchart LR
 - `src/core` — pure logic: tech-tree planner, structure DSL & compiler, survival reflexes, layout
 - `src/runtime` — the agent loop, world observation, spatial reasoning, team inbox, project board
 - `src/skills` — effectful actions (pathfinding, digging, placing, combat, riding, chests…)
-- `src/brain` — LLM, chat routing, leader election, autonomy, banter, village planning, script director
+- `src/brain` — LLM providers, chat routing, leader election, autonomy, banter, village planning, script director
 
 Details: [ARCHITECTURE.md](ARCHITECTURE.md).
 
+## 🔌 AI providers
+
+Paste one API key into `.env` and the provider is detected automatically, or choose one with `AI_PROVIDER`. Every provider has a fast model (chat, quick decisions) and a strong model (designs, scripts). Override them with `AI_MODEL` / `AI_STRONG_MODEL`.
+
+| `AI_PROVIDER` | Key | Default fast / strong model |
+|---|---|---|
+| `gemini` | `GEMINI_API_KEY` | `gemini-flash-latest` / `gemini-pro-latest` |
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-haiku-5-5` / `claude-opus-5-5` |
+| `openai` | `OPENAI_API_KEY` | `gpt-6-luna` / `gpt-6-astra` |
+| `openrouter` | `OPENROUTER_API_KEY` | `openrouter/auto` |
+| `groq` | `GROQ_API_KEY` | `openai/gpt-oss-20b` / `openai/gpt-oss-120b` |
+| `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` / `deepseek-reasoner` |
+| `xai` | `XAI_API_KEY` | `grok-4.3` / `grok-4.7` |
+| `mistral` | `MISTRAL_API_KEY` | `mistral-small-latest` / `mistral-large-latest` |
+| `together` | `TOGETHER_API_KEY` | `openai/gpt-oss-20b` / `openai/gpt-oss-120b` |
+| `ollama` | none | set `AI_MODEL` (e.g. `qwen3`) |
+| `lmstudio` | none | set `AI_MODEL` |
+| `custom` | `AI_API_KEY` (if needed) | any OpenAI-compatible server: set `AI_BASE_URL` + `AI_MODEL` |
+
+```bash
+# examples (.env)
+ANTHROPIC_API_KEY=sk-ant-...                                    # Claude, default models
+AI_PROVIDER=ollama   AI_MODEL=qwen3                             # fully local, free
+AI_PROVIDER=custom   AI_BASE_URL=http://localhost:8000/v1   AI_MODEL=my-model   # vLLM / LiteLLM / any proxy
+```
+
+Rate limits and outages are retried. When a provider's quota or credit runs out, the agents fall back from the strong model to the fast one, then to the built-in planner, and recover by themselves once the budget is back.
+
 ## ⚙️ Configuration
 
-All settings live in `.env` (see [.env.example](.env.example)): API key and models, host/port, agent names, game mode (`creative`/`survival`/`keep`), autonomy and banter on/off. Each agent keeps its memory in `data/<name>/`; the team shares `data/shared/` and `skills/learned/`.
+All settings live in `.env` (see [.env.example](.env.example)): AI provider, key and models, host/port, agent names, game mode (`creative`/`survival`/`keep`), autonomy and banter on/off. Each agent keeps its memory in `data/<name>/`; the team shares `data/shared/` and `skills/learned/`.
 
 ## 🧪 Tests
 
@@ -164,7 +193,8 @@ This project stands on the shoulders of great open-source work:
 | [minecraft-data](https://github.com/PrismarineJS/minecraft-data) | blocks, items, recipes per game version | MIT |
 | [prismarine-item](https://github.com/PrismarineJS/prismarine-item) | item handling (chests, equipment slots) | MIT |
 | [vec3](https://github.com/PrismarineJS/node-vec3) | 3D vector math | BSD |
-| [@google/genai](https://github.com/googleapis/js-genai) | Gemini models for chat, design and planning | Apache-2.0 |
+| [@google/genai](https://github.com/googleapis/js-genai) | Gemini provider | Apache-2.0 |
+| [@anthropic-ai/sdk](https://github.com/anthropics/anthropic-sdk-typescript) | Claude provider | Apache-2.0 |
 | [dotenv](https://github.com/motdotla/dotenv) | configuration from `.env` | BSD-2-Clause |
 
 Inspired by research on LLM agents in Minecraft such as [Voyager](https://voyager.minedojo.org/) (skill libraries) and [Mindcraft](https://github.com/mindcraft-bots/mindcraft).

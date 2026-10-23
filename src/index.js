@@ -61,10 +61,10 @@ function createAgentBot({ host = "localhost", port, username = "Vesper", version
       // put the agent in the game mode it is meant to play in (needs cheats/op: harmless no-op message otherwise)
       if (gamemode && bot.game?.gameMode !== gamemode) { log("boot", `switching ${username} to ${gamemode} mode`); bot.chat(`/gamemode ${gamemode} ${bot.username}`); }
       require("./runtime/world").reconcile(bot, username);        // new world => clean memory, before anything loads its saved state
-      const brain = new Brain({ apiKey: process.env.GEMINI_API_KEY, model: process.env.GEMINI_MODEL, strongModel: process.env.GEMINI_STRONG_MODEL ?? "gemini-pro-latest" });
+      const brain = new Brain();                    // provider, key and models from .env (AI_PROVIDER / AI_MODEL / ..., see src/brain/providers.js)
       out.agent = new Agent(bot, out.reg, { say: (m) => bot.chat(String(m)), advisor: brain.available ? brain : null });
       out.agent.brain = brain;
-      log("boot", brain.available ? `LLM ready (fast ${brain.model}${brain.strongModel ? ", strong " + brain.strongModel : ""})` : "LLM disabled (no API key): local intent only");
+      log("boot", `AI ${brain.label}${brain.provider ? "" : " - local intent only"}`);
       if (auto) out.agent.run();
       if (chat) bot.on("chat", (u, m) => { if (u !== bot.username && bot.players[u]) handleChat(out.agent, u, m).catch((e) => log("chat", e.stack)); });
       if (chat) bot.on("whisper", (u, m) => { if (u !== bot.username && bot.players[u]) handleChat(out.agent, u, m, { whisper: true }).catch((e) => log("chat", e.stack)); });

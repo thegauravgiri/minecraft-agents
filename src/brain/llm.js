@@ -1,4 +1,4 @@
-// Gemini is used sparingly: fuzzy chat -> a validated goal, and "what now?" advice when the bot is genuinely stuck.
+// The AI (any provider - see providers.js) is used sparingly: fuzzy chat -> a validated goal, and "what now?" advice when the bot is genuinely stuck.
 // It never writes code and never chooses individual steps; the deterministic planner does that.
 const { resolveItem } = require("../core/items");
 const { log } = require("../runtime/util");
@@ -27,15 +27,19 @@ const GOAL_DOC = `Allowed goals (JSON "goal" field), use null when the player is
 - {"type":"freeform","text":"<the task in plain words>"}  ONLY when no typed goal above can express the task (multi-step puzzles, custom builds, unusual requests); a planner agent then works it out step by step`;
 
 class Brain {
-  constructor({ apiKey, model, strongModel }) {
-    this.model = model || "gemini-2.5-flash";
-    this.strongModel = strongModel === "" ? null : (strongModel || null);       // the careful model: code, designs, critique (slower, much better)
-    this.client = null;
-    if (apiKey) {
-      try { const { GoogleGenAI } = require("@google/genai"); this.client = new GoogleGenAI({ apiKey }); }
-      catch (e) { log("llm", "SDK unavailable:", e.message); }
+  /** config: { provider, apiKey, model, strongModel, baseURL } (see providers.resolveConfig), or a resolved config from .env when omitted. */
+  constructor(config = null) {
+    const { resolveConfig, createProvider } = require("./providers");
+    const cfg = config && config.kind ? config : resolveConfig();
+    this.provider = null; this.providerName = cfg.name || null; this.setupError = cfg.error || null;
+    this.model = cfg.model || null;
+    this.strongModel = cfg.strongModel || null;       // the careful model: code, designs, critique (slower, much better)
+    if (!cfg.error) {
+      try { this.provider = createProvider(cfg); }
+      catch (e) { this.setupError = `${cfg.name} SDK unavailable: ${e.message}`; log("llm", this.setupError); }
     }
   }
+  get label() { return this.provider ? `${this.providerName}: fast ${this.model}${this.strongModel ? ", strong " + this.strongModel : ""}` : `off (${this.setupError || "no provider"})`; }
   // `available` is false while the account is out of budget, EXCEPT that every 20 s one request may probe: the moment the budget is
   // raised (or the quota resets) the next chat message works again, no restart and no 30-minute wait.
   // Quota is tracked PER MODEL: the strong model (pro) can be out of quota while the fast one works fine - that must degrade the
@@ -43,9 +47,9 @@ class Brain {
   state(model) { return (this.q ||= {})[model] ||= { until: 0, step: 0 }; }
   isBlocked(model) { const q = this.state(model); return Date.now() < q.until; }
   get blockedUntil() { return this.state(this.model).until; }                 // (chat/status code asks about the fast model)
-  get available() { return !!this.client && !this.isBlocked(this.model); }
+  get available() { return !!this.provider && !this.isBlocked(this.model); }
   noteQuota(e, model = this.model) {
-    if (!/spending cap|exceeded your (current )?quota|billing|quota.*exceeded|insufficient.*(quota|credit)/i.test(String(e?.message || e))) return false;
+    if (!/spending cap|exceeded your (current )?quota|billing|quota.*exceeded|insufficient.*(quota|credit|balance)|credit balance is too low|insufficient_quota|payment required|\b402\b/i.test(String(e?.message || e))) return false;
     const q = this.state(model);
     if (Date.now() >= q.until) log("llm", `${model}: budget/quota exhausted (${String(e.message).replace(/\s+/g, " ").slice(0, 100)}) - ${model === this.model ? "degraded mode" : "falling back to " + this.model}, probing again soon`);
     q.step = Math.min(q.step + 1, 4);
@@ -55,7 +59,7 @@ class Brain {
   noteOk(model = this.model) { const q = this.state(model); if (q.until) log("llm", `${model} is back`); q.until = 0; q.step = 0; }
 
   async json(prompt, { timeoutMs = 11000, level = "LOW", strong = false } = {}) {
-    if (!this.client) throw new Error("llm_unavailable");
+    if (!this.provider) throw new Error("llm_unavailable");
     if (strong && this.strongModel && !this.isBlocked(this.strongModel)) {
       try { return await this.json1(prompt, { timeoutMs: Math.round(timeoutMs * 1.6), level, model: this.strongModel }); }
       catch (e) { log("llm", `strong model ${this.strongModel} failed (${String(e.message).replace(/\s+/g, " ").slice(0, 80)}) - using ${this.model}`); }
@@ -70,27 +74,15 @@ class Brain {
       try { const r = await this.json2(prompt, opts); this.noteOk(opts.model); return r; }
       catch (e) {
         if (this.noteQuota(e, opts.model)) throw e;
-        if (attempt >= 2 || !/429|503|500|RESOURCE_EXHAUSTED|UNAVAILABLE|overloaded|fetch failed|ECONNRESET|ETIMEDOUT/i.test(String(e.message))) throw e;
+        if (attempt >= 2 || !/\b(429|500|502|503|504|529)\b|RESOURCE_EXHAUSTED|UNAVAILABLE|overloaded|rate.?limit|fetch failed|ECONNRESET|ECONNREFUSED|ETIMEDOUT|socket hang up/i.test(String(e.message))) throw e;
         await new Promise((r) => setTimeout(r, 1200 + Math.random() * 2500 * (attempt + 1)));
       }
     }
   }
 
   async json2(prompt, { timeoutMs, level, model }) {
-    const thinkingKey = "thinkingOk_" + model;
-    const call = async (thinking) => {
-      const config = { responseMimeType: "application/json", temperature: 0.1, ...(thinking ? { thinkingConfig: { thinkingLevel: level } } : {}) };
-      const p = this.client.models.generateContent({ model, contents: prompt, config });
-      return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("llm_timeout")), timeoutMs))]);
-    };
-    let res;
-    try { res = await call(this[thinkingKey] !== false); this[thinkingKey] = this[thinkingKey] ?? true; }
-    catch (e) {
-      if (/timeout/.test(e.message) || this[thinkingKey] === false) throw e;
-      this[thinkingKey] = false; res = await call(false); // model rejects thinkingConfig: remember and retry plain
-    }
-    const t = (res.text || "").trim().replace(/^```[a-z]*\n?/i, "").replace(/```$/, "").trim();
-    return JSON.parse(t);
+    const { parseJson } = require("./providers");
+    return parseJson(await this.provider.generate({ model, prompt, timeoutMs, level }));
   }
 
   /** Chat -> {goal|null, reply}. Goal is validated; unknown items/types are rejected. */

@@ -131,7 +131,7 @@ class Agent {
     // Anything the typed planner can't express goes to the AI director (writes/repairs scripts, breaks the task down)
     if (goal.type === "freeform") {
       this.goal = null; this.abortCurrent("freeform");
-      if (!this.brain?.available) { this.say("I need the AI planner (Gemini API key) for that kind of task - can you give me something simpler?", { force: true }); this.advanceQueue(); return; }
+      if (!this.brain?.available) { this.say("I need the AI planner (an AI provider in .env) for that kind of task - can you give me something simpler?", { force: true }); this.advanceQueue(); return; }
       this.ctxStore.noteGoal(goal, this.master);
       this.director.start(goal.text, this.master, { quiet: !!goal.auto }).finally(() => { this.autonomy.onOutcome(goal, "done", true); if (!this.goal) this.advanceQueue(); });
       return;

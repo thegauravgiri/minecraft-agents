@@ -3,15 +3,19 @@
   "version": "2.14.0",
   "description": "Autonomous AI players for Minecraft that act like real teammates: they chat, pick a leader, split up big builds, fight side by side and share the skills they learn.",
   "keywords": [
-    "minecraft",
     "ai-agents",
-    "multi-agent",
-    "mineflayer",
-    "llm",
+    "anthropic",
     "autonomous-agents",
-    "gemini",
+    "claude",
     "game-ai",
-    "minecraft-bot"
+    "gemini",
+    "llm",
+    "minecraft",
+    "minecraft-bot",
+    "mineflayer",
+    "multi-agent",
+    "ollama",
+    "openai"
   ],
   "homepage": "https://github.com/thegauravgiri/minecraft-agents#readme",
   "bugs": {
@@ -36,6 +40,7 @@
     "team": "./start-team.sh"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.2.0",
     "@google/genai": "^2.30.0",
     "dotenv": "^18.0.8",
     "minecraft-data": "^3.117.0",
