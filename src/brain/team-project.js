@@ -357,6 +357,7 @@ Reply ONLY JSON: {"request":"<one concrete project in plain words, buildable fro
     this.asked ||= new Set();
     if (this.asked.has(task.id)) return;
     const a = this.agent;
+    if (a.bot.game?.gameMode === "creative") return;                 // creative: every block is free, nobody has to bring anything
     const mates = team.readTeam(this.me);
     if (!mates.length) return;
     try {
