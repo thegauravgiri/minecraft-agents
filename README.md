@@ -15,7 +15,13 @@ repair your village, ride ghasts — and teach each other the skills they learn.
 
 </div>
 
-<!-- Demo: drop a 20-30 s GIF here, e.g. docs/demo.gif — two agents building a flag, or one shouting "zombie on me!" and the other running over to help. -->
+<p align="center">
+  <img src="docs/agent-digging.jpg" alt="An agent in Minecraft answering a player's chat message 'dig up some dirt' with 'Found dirt! Mining 8 blocks now.' and digging the blocks in front of it" width="820">
+  <br>
+  <sub>Ask in plain chat and an agent answers, then does it: <i>"dig up some dirt"</i> → <i>"Found dirt! Mining 8 blocks now."</i></sub>
+</p>
+
+<!-- Demo: a 20-30 s GIF here (docs/demo.gif) would be even better - two agents building a flag, or one shouting "zombie on me!" and the other running over to help. -->
 
 ```text
 <Steve>  Wren, build a cooking house here
