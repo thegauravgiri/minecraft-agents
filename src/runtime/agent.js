@@ -471,7 +471,7 @@ class Agent {
     this.banter.tick().catch((e) => log("banter", e.message));
     for (const m of team.drainInbox(name)) {
       if (m.type === "report") { this.teamReports.push({ from: m.from, text: m.text, t: m.t }); if (this.teamReports.length > 20) this.teamReports.shift(); log("team", `report from ${m.from}: ${m.text}`); continue; }
-      if (m.type === "reset") { const R = require("./reset"); if (m.text === "tasks" || m.text === "everything") R.resetTasks(this); if (m.text !== "tasks") R.resetAgent(this, m.text === "chat" ? "chat" : "all"); continue; }
+      if (m.type === "reset") { const R = require("./reset"); if (m.text === "tasks" || m.text === "everything") R.resetTasks(this, { pauseMs: Number.isFinite(m.data?.pauseMs) ? m.data.pauseMs : 120000 }); if (m.text !== "tasks") R.resetAgent(this, m.text === "chat" ? "chat" : "all"); continue; }
       if (m.type === "alert") { this.respondToAlert(m); continue; }
       if (m.type === "chat") { this.banter.onChat(m).catch(() => {}); continue; }
       if (m.type === "order" && m.data?.goal) {                                  // the whole team was told to do something simple: just do it

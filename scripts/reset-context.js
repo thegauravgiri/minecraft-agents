@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Reset the agents.   node scripts/reset-context.js [tasks|chat|all|everything] [Name ...]
+// Reset the agents.   node scripts/reset-context.js [tasks|chat|all|everything] [Name ...] [--hold <ms>]
 //   tasks      - drop every running/queued task, team job and request; agents stand by for new orders (memory kept)
 //   chat       - forget the conversation only
 //   all        - forget conversation, places, landmarks, journal, projects (skills are kept)
@@ -9,6 +9,8 @@
 const fs = require("fs"), path = require("path");
 const root = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
+// --hold <ms>: how long the agents stand by after dropping their tasks (default 120000; 0 = take the next job at once)
+const holdAt = args.indexOf("--hold"); const hold = holdAt >= 0 ? Number(args.splice(holdAt, 2)[1]) : undefined;
 const scope = ["tasks", "chat", "all", "everything"].includes(args[0]) ? args.shift() : "tasks";
 const dataDir = path.join(root, "data");
 const all = [...fs.readdirSync(dataDir, { withFileTypes: true }).filter((d) => d.isDirectory() && !["shared", "run"].includes(d.name)).map((d) => d.name)];
@@ -16,7 +18,7 @@ const names = args.length ? args : all;
 const team = require(path.join(root, "src/runtime/team"));
 const running = new Set(team.readTeam("__nobody__", 30000).map((s) => s.name));
 for (const n of names) {
-  if (running.has(n)) { team.send("console", n, { type: "reset", text: scope }); console.log(`${n}: running - told to reset (${scope})`); continue; }
+  if (running.has(n)) { team.send("console", n, { type: "reset", text: scope, data: Number.isFinite(hold) ? { pauseMs: hold } : undefined }); console.log(`${n}: running - told to reset (${scope})`); continue; }
   if (scope === "tasks") { console.log(`${n}: not running - no tasks to drop`); continue; }
   const dir = path.join(dataDir, n);
   const files = scope === "all" || scope === "everything" ? ["context.json", "context.json.bak", "knowledge.json", "knowledge.json.bak", "journal.json", "journal.json.bak"] : [];
